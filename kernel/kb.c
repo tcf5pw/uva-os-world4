@@ -73,11 +73,13 @@ int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *conte
                 return -1;
             }
             /* STUDENT_TODO: your code here */
+            // sleep(&the_kb.r, &the_kb.lock);
         }
 
         if (n < TXTSIZE) break; // no enough space in userbuf
 
         /* STUDENT_TODO: your code here */
+        // ev = the_kb.buf[the_kb.r++ % INPUT_BUF_SIZE];
         int len = snprintf(ev_txt, TXTSIZE, "%s 0x%02x\n", 
             ev.type == KEYDOWN ? "kd":"ku", ev.scancode); 
 
@@ -95,7 +97,8 @@ int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *conte
     }
     release(&the_kb.lock);
 
-    return 0; /* STUDENT_TODO: replace this */
+    return 0;
+    // return target - n; /* STUDENT_TODO: replace this */
 }
 
 // if buf full, drop event but still change key state
@@ -136,6 +139,7 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
                     .mod = mod,
                     .scancode = c};
                 /* STUDENT_TODO: your code here */
+                // the_kb.buf[the_kb.w++ % INPUT_BUF_SIZE] = ev;
             }
             key_states[c] = KEY_JUST_PRESSED;
         } else if (key_states[c] == KEY_CONT_PRESSED)
@@ -151,6 +155,7 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
                     .mod = mod,
                     .scancode = c};
                 /* STUDENT_TODO: your code here */
+                // the_kb.buf[the_kb.w++ % INPUT_BUF_SIZE] = ev;
             }
             key_states[c] = KEY_RELEASED;
             break;
@@ -164,7 +169,8 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
         }
     }
 
-    wakeup(0); /* STUDENT_TODO: replace this */
+    wakeup(0);
+    // wakeup(&the_kb.r); /* STUDENT_TODO: replace this */
     release(&the_kb.lock);
 }
 
@@ -187,7 +193,8 @@ int usbkb_init(void) {
 	}
     USPiKeyboardRegisterKeyStatusHandlerRaw(kb_intr); 
 
-    devsw[KEYBOARD].read = 0; /* STUDENT_TODO: replace this */
+    devsw[KEYBOARD].read = 0;
+    // devsw[KEYBOARD].read = kb_read; /* STUDENT_TODO: replace this */
     devsw[KEYBOARD].write = 0; // nothing
     return 0; 
 }

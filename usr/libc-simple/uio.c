@@ -15,7 +15,9 @@ int config_fbctl(int w, int d, int vw, int vh, int offx, int offy) {
 
      
     /* STUDENT_TODO: your code here */
-
+    sprintf(buf, "%d %d %d %d %d %d\n", w, d, vw, vh, offx, offy);
+    n = write(fbctl, buf, strlen(buf));
+     
     // printf("write returns %d\n", n);
 
     close(fbctl);  // close it so flush the writes to the kernel
@@ -53,6 +55,12 @@ int read_dispinfo(int dispinfo[MAX_DISP_ARGS], int *nargs) {
 
     // read a line from /proc/dispinfo to buf
     /* STUDENT_TODO: your code here */
+    n = read(dp, buf, LINESIZE-1);
+    if (n <= 0) {
+        close(dp);
+        return -1;
+    }
+    buf[n] = '\0';
 
     // parse the 1st line from /proc/dispinfo as a list of int args... 
     for (s = buf, *nargs=0; s < buf + n; s++) {
@@ -62,6 +70,11 @@ int read_dispinfo(int dispinfo[MAX_DISP_ARGS], int *nargs) {
              
             /* STUDENT_TODO: your code here */
             // printf("got arg %d\n", dispinfo[nargs]); // debugging
+            if ('0' <= *s && *s <= '9') {
+                dispinfo[*nargs] = atoi(s);
+                (*nargs)++;
+                while ('0' <= *s && *s <= '9') s++;
+            }
         }
     }    
     // line 2 and later ignored 
@@ -86,8 +99,10 @@ int read_kb_event(int events, int *evtype, unsigned int *scancode) {
     // below: set event type
     if (buf[0]=='k' && buf[1]=='d') {
       /* STUDENT_TODO: your code here */
+    //   *evtype = KEYDOWN;
     } else if (buf[0]=='k' && buf[1]=='u') {
       /* STUDENT_TODO: your code here */
+    //   *evtype = KEYUP;
     } 
     s += 2; while (*s==' ') s++; 
     if (s[0]=='0' && s[1]=='x')

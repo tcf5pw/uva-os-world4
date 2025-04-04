@@ -40,7 +40,18 @@ int main(int argc, char *argv[])
     // to the memory buffer
      
     /* STUDENT_TODO: your code here */
-    
+    if ((fd = open(argv[1], O_RDONLY)) < 0) {
+      fprintf(stderr, "Cannot open rom file %s\n", argv[1]);
+      exit(1);
+    }
+
+    if (read(fd, rom, sizeof(rom)) <= 0) {
+      fprintf(stderr, "Cannot read rom file %s\n", argv[1]);
+      close(fd);
+      exit(1);
+    }
+    close(fd);  
+
     printf("open rom...ok\n"); 
 load: 
     if (fce_load_rom(rom) != 0) {

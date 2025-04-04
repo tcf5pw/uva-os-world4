@@ -223,7 +223,7 @@ void nes_hal_init() {
     if (fork() == 0)  { 
         close(fds[0]);
         // open the keyboard device file
-        int events = 0; /* STUDENT_TODO: replace this */
+        int events = open("/dev/events", O_RDONLY); /* STUDENT_TODO: replace this */
         assert(events>0);
         int evtype; unsigned int scancode; 
         printf("input task running\n");
@@ -236,6 +236,14 @@ void nes_hal_init() {
                 // printf("evtype %d scancode %d\n", evtype, (int)scancode); 
                  
                 /* STUDENT_TODO: your code here */
+                // struct event keyev;
+                // keyev.type = evtype;
+                // keyev.scancode = scancode;
+
+                // if (write(fds[1], &keyev, sizeof(keyev)) != sizeof(keyev)) {
+                //     printf("write keyev failed\n");
+                //     exit(1);
+                // }
             }
         }
         exit(0); // shall never reach here
@@ -243,7 +251,7 @@ void nes_hal_init() {
     close(fds[1]); 
 
     // open the framebuffer device 
-    fb = open("/dev/??", 0); /* STUDENT_TODO: replace this */
+    fb = open("/dev/fb", O_RDWR); /* STUDENT_TODO: replace this */
     assert(fb>0); 
     
     // Configure fb hardware via procfs
@@ -295,6 +303,11 @@ void nes_flip_display()
 #else
      
     /* STUDENT_TODO: your code here */
+    lseek(fb, 0, SEEK_SET);
+    n = write(fb, vtx, vtx_sz);
+    if (n != vtx_sz) {
+        printf("%s: failed to write to hw fb. fb %d sz %d ret %d\n", __func__, fb, vtx_sz, n);
+    }
 #endif
 }
 

@@ -729,8 +729,8 @@ int procfs_parse_fbctl(int args[PROCFS_MAX_ARGS]) {
     if (args[0]>0 || args[1]>0 || args[2]>0 || args[3]>0) {
         fb_fini(); 
         acquire(&mboxlock);     
-        the_fb.width = 0; /* STUDENT_TODO: replace this */
-        the_fb.height = 0; /* STUDENT_TODO: replace this */
+        the_fb.width = args[0]; /* STUDENT_TODO: replace this */
+        the_fb.height = args[1]; /* STUDENT_TODO: replace this */
         the_fb.vwidth = args[2];
         the_fb.vheight = args[3];
         release(&mboxlock);      
