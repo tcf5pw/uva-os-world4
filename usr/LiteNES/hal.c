@@ -246,7 +246,9 @@ void nes_hal_init()
     {
         close(fds[0]);
         // open the keyboard device file
-        int events = open("/dev/events", O_RDONLY); /* STUDENT_TODO: replace this */
+        int events = 0;
+        // int events = open("/dev/events", 0); /* STUDENT_TODO: replace this */
+        printf("open /dev/events %d\n", events);
         assert(events > 0);
         int evtype;
         unsigned int scancode;
@@ -351,21 +353,21 @@ int nes_key_state(int b)
     case 0: // On / Off
         return 1;
     case 1:                                   // A  (k)
-        return key_states['k'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_K] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 2:                                   // B  (j)
-        return key_states['j'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_J] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 3:                                   // SELECT (u)
-        return key_states['u'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_U] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 4:                                   // START  (i)
-        return key_states['i'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_I] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 5:                                   // UP  (w)
-        return key_states['w'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_W] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 6:                                   // DOWN (s)
-        return key_states['s'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_S] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 7:                                   // LEFT (a)
-        return key_states['a'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_A] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     case 8:                                   // RIGHT (d)
-        return key_states['d'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
+        return key_states[KEY_D] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
     default:
         return 0;
     }
