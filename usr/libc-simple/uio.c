@@ -86,8 +86,10 @@ int read_kb_event(int events, int *evtype, unsigned int *scancode) {
     // below: set event type
     if (buf[0]=='k' && buf[1]=='d') {
       /* STUDENT_TODO: your code here */
+      *evtype = KEYDOWN;
     } else if (buf[0]=='k' && buf[1]=='u') {
       /* STUDENT_TODO: your code here */
+      *evtype = KEYUP;
     } 
     s += 2; while (*s==' ') s++; 
     if (s[0]=='0' && s[1]=='x')

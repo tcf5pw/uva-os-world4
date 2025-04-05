@@ -27,7 +27,6 @@
      "workbench.colorCustomizations" : {
         "terminal.foreground" : "#dddad6",
         "terminal.background" : "#000000",   // 383737
-        "titleBar.activeBackground": "#d142f5df" // ... to differentiate agasint hosts...
     },
     // more terminal appearance https://code.visualstudio.com/docs/terminal/appearance
     "terminal.integrated.fontFamily" : "'Consolas', monospace",

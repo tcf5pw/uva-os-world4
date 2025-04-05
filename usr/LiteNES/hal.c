@@ -115,6 +115,7 @@ void wait_for_frame()
             assert(ev.scancode<NUM_SCANCODES); 
             // printf("key code %d %s\n", ev.scancode, ev.type == EV_KEYDOWN ? "down":"up");
             /* STUDENT_TODO: your code here */
+            key_states[ev.scancode] = ev.type;
             break;      // continue to wait for timer ev   
         default:
             printf("unknown ev"); exit(1); 
@@ -223,7 +224,7 @@ void nes_hal_init() {
     if (fork() == 0)  { 
         close(fds[0]);
         // open the keyboard device file
-        int events = 0; /* STUDENT_TODO: replace this */
+        int events = open("/dev/events", O_RDONLY); /* STUDENT_TODO: replace this */
         assert(events>0);
         int evtype; unsigned int scancode; 
         printf("input task running\n");
@@ -236,6 +237,9 @@ void nes_hal_init() {
                 // printf("evtype %d scancode %d\n", evtype, (int)scancode); 
                  
                 /* STUDENT_TODO: your code here */
+                ev.type = evtype;
+                ev.scancode = scancode;
+                write(fds[1], &ev, sizeof ev);
             }
         }
         exit(0); // shall never reach here
@@ -307,23 +311,23 @@ int nes_key_state(int b)
         case 0: // On / Off
             return 1;
         case 1: // A  (k)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['k'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 2: // B  (j)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['j'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 3: // SELECT (u)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['u'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 4: // START  (i)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['i'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 5: // UP  (w)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['w'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 6: // DOWN (s)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['s'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 7: // LEFT (a)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['a'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         case 8: // RIGHT (d)
-            return 0; /* STUDENT_TODO: replace this */
+            return key_states['d'] == EV_KEYDOWN; /* STUDENT_TODO: replace this */
         default:
-            return 1;
+            return 0;
     }
 }
 
