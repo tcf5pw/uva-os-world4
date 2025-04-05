@@ -13,6 +13,10 @@ cat(int fd)
     // write whatever chars read to stdout
      
     /* STUDENT_TODO: your code here */
+    if (write(1, buf, n) != n) {
+      fprintf(2, "cat: write error\n");
+      exit(1);
+    }
   }
   if(n < 0){
     fprintf(2, "cat: read error\n");

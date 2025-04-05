@@ -1,6 +1,6 @@
 #define K2_DEBUG_INFO
 
-/* 
+/*
     USB keyboard
     modeled after console.c
       interface inspired by NJU project N
@@ -32,10 +32,10 @@
 #include "utils.h"
 #include "kb.h"
 
-struct kb_struct the_kb = {.r=0,.w=0};
+struct kb_struct the_kb = {.r = 0, .w = 0};
 
-#define NUM_SCANCODES   0x64 // all the way to KEY_KPDOT, cf https://gist.github.com/MightyPork/6da26e382a7ad91b5496ee55fdc73db2  
-#define KEY_RELEASED    0
+#define NUM_SCANCODES 0x64 // all the way to KEY_KPDOT, cf https://gist.github.com/MightyPork/6da26e382a7ad91b5496ee55fdc73db2
+#define KEY_RELEASED 0
 #define KEY_CONT_PRESSED 1
 #define KEY_JUST_PRESSED 2
 
@@ -47,28 +47,33 @@ char key_states[NUM_SCANCODES] = {KEY_RELEASED}; // 0: keyup, 1: keydown
     return a batch of events
 
     "user_dst": whether dst is a user or kernel address (1 means dst is user va)
-    "n": user buffer size;  "blocking": blocking read? 
+    "n": user buffer size;  "blocking": blocking read?
 
-    cf: console.c 
+    cf: console.c
 */
 // quest: mario with inputs
-int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *content) {
+int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *content)
+{
     uint target;
-    struct kbevent ev = {0,0,0,0};
-#define TXTSIZE 20     
-    char ev_txt[TXTSIZE]; 
+    struct kbevent ev = {0, 0, 0, 0};
+#define TXTSIZE 20
+    char ev_txt[TXTSIZE];
 
     V("called user_dst %d", user_dst);
 
     target = n;
     acquire(&the_kb.lock);
-    while (n > 0) {     // n:remaining space in userbuf
-        if (!blocking && (the_kb.r == the_kb.w)) break;
+    while (n > 0)
+    { // n:remaining space in userbuf
+        if (!blocking && (the_kb.r == the_kb.w))
+            break;
 
         // wait until interrupt handler has put some
         // input into cons.buffer.
-        while (the_kb.r == the_kb.w) {
-            if (killed(myproc())) {
+        while (the_kb.r == the_kb.w)
+        {
+            if (killed(myproc()))
+            {
                 release(&the_kb.lock);
                 return -1;
             }
@@ -76,26 +81,29 @@ int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *conte
             sleep(&the_kb, &the_kb.lock);
         }
 
-        if (n < TXTSIZE) break; // no enough space in userbuf
+        if (n < TXTSIZE)
+            break; // no enough space in userbuf
 
         /* STUDENT_TODO: your code here */
         ev = the_kb.buf[the_kb.r % INPUT_BUF_SIZE];
         the_kb.r++;
 
-        int len = snprintf(ev_txt, TXTSIZE, "%s 0x%02x\n", 
-            ev.type == KEYDOWN ? "kd":"ku", ev.scancode); 
+        int len = snprintf(ev_txt, TXTSIZE, "%s 0x%02x\n",
+                           ev.type == KEYDOWN ? "kd" : "ku", ev.scancode);
 
         BUG_ON(len < 0 || len >= TXTSIZE); // ev_txt too small
 
-        if (n < len) break; // no enough space in userbuf (XXX should do kb.r--?)
-        
+        if (n < len)
+            break; // no enough space in userbuf (XXX should do kb.r--?)
+
         // copy the input byte to the user-space buffer.
         if (either_copyout(user_dst, dst, ev_txt, len) == -1)
             break;
 
-        dst+=len; n-=len;        
+        dst += len;
+        n -= len;
 
-        break; 
+        break;
     }
     release(&the_kb.lock);
 
@@ -116,25 +124,34 @@ int kb_read(int user_dst, uint64 dst, int off, int n, char blocking, void *conte
 // the driver does not pass mod keys to userspace.
 // however doom expects ctrl/alt key events... can be a project idea
 // quest: mario with inputs
-void kb_intr(unsigned char mod, const unsigned char keys[6]) {
+void kb_intr(unsigned char mod, const unsigned char keys[6])
+{
     unsigned char c;
 
     if (keys[0] == 1 /*KEY_ERR_OVF*/) // too many keys
         return;
 
-    V("mod %u key %02x %02x %02x %02x %02x %02x", 
-        mod, keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]);
-    // e.g. left alt key pressed 
+    V("mod %u key %02x %02x %02x %02x %02x %02x",
+      mod, keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]);
+    // e.g. left alt key pressed
     // kb.c:  mod 4 key 00 00 00 00 00 00
 
     acquire(&the_kb.lock);
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         c = keys[i];
-        if (c > NUM_SCANCODES) {E("unknown code?"); continue;}
-        if (c == 0) break; // no more scan code
-        if (key_states[c] == KEY_RELEASED) { // released before, just pressed
-            if (the_kb.w-the_kb.r < INPUT_BUF_SIZE) {
+        if (c > NUM_SCANCODES)
+        {
+            E("unknown code?");
+            continue;
+        }
+        if (c == 0)
+            break; // no more scan code
+        if (key_states[c] == KEY_RELEASED)
+        { // released before, just pressed
+            if (the_kb.w - the_kb.r < INPUT_BUF_SIZE)
+            {
                 struct kbevent ev = {
                     .type = KEYDOWN,
                     .mod = mod,
@@ -144,14 +161,18 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
                 the_kb.w++;
             }
             key_states[c] = KEY_JUST_PRESSED;
-        } else if (key_states[c] == KEY_CONT_PRESSED)
+        }
+        else if (key_states[c] == KEY_CONT_PRESSED)
             key_states[c] = KEY_JUST_PRESSED; // renew the state
     }
 
-    for (c = 2; c < NUM_SCANCODES; c++) {       //0,1 are nocode,ovf
-        switch (key_states[c]) {
+    for (c = 2; c < NUM_SCANCODES; c++)
+    { // 0,1 are nocode,ovf
+        switch (key_states[c])
+        {
         case KEY_CONT_PRESSED: // pressed before, but not pressed in current scan
-            if (the_kb.w-the_kb.r < INPUT_BUF_SIZE) {
+            if (the_kb.w - the_kb.r < INPUT_BUF_SIZE)
+            {
                 struct kbevent ev = {
                     .type = KEYUP,
                     .mod = mod,
@@ -174,6 +195,7 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
     }
 
     wakeup(&the_kb); /* STUDENT_TODO: replace this */
+    // wakeup(&the_kb.r);
     release(&the_kb.lock);
 }
 
@@ -182,21 +204,24 @@ void kb_intr(unsigned char mod, const unsigned char keys[6]) {
 
 // return 0 on success
 // quest: mario with inputs
-int usbkb_init(void) {
+int usbkb_init(void)
+{
 
     initlock(&the_kb.lock, "kb");
 
-	if (!USPiInitialize ()) {
-		E("cannot init"); 
-        return -1; 
-	}
-	if (!USPiKeyboardAvailable ()) {
+    if (!USPiInitialize())
+    {
+        E("cannot init");
+        return -1;
+    }
+    if (!USPiKeyboardAvailable())
+    {
         E("keyboard not found");
-        return -1; 
-	}
-    USPiKeyboardRegisterKeyStatusHandlerRaw(kb_intr); 
+        return -1;
+    }
+    USPiKeyboardRegisterKeyStatusHandlerRaw(kb_intr);
 
     devsw[KEYBOARD].read = kb_read; /* STUDENT_TODO: replace this */
-    devsw[KEYBOARD].write = 0; // nothing
-    return 0; 
+    devsw[KEYBOARD].write = 0;      // nothing
+    return 0;
 }

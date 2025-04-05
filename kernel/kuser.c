@@ -103,7 +103,7 @@ void user_process() {
 
     char console[] = {"console"};     
     if (call_sys_open(console, O_RDWR) < 0) {
-        call_sys_mknod(0, 0, 0); /* STUDENT_TODO: replace this */
+        call_sys_mknod("console", CONSOLE, 0); /* STUDENT_TODO: replace this */
         call_sys_open(console, O_RDWR);
     }
     call_sys_dup(0); // stdout
@@ -114,6 +114,7 @@ void user_process() {
 
      
     /* STUDENT_TODO: your code here */
+    call_sys_exec(path, argv);
 }
 
 void user_process1() {
