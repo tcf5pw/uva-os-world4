@@ -468,10 +468,10 @@ int procfs_gen_content(int major, char *txtbuf, int sz) {
         len = snprintf(txtbuf, sz, 
             "%6d %6d %6d %6d %6d %6d %6d %6d %6d\n"
             "# %6s %6s %6s %6s %6s %6s %6s %6s %6s\n",
-            0,0,0,0, /* STUDENT_TODO: replace this */
-            the_fb.scr_width, the_fb.scr_height, the_fb.pitch, the_fb.depth, the_fb.isrgb,
-            "width","height","vwidth","vheigh",
-            "swidth","sheigh","pitch","depth","isrgb"); 
+            the_fb.width, the_fb.height, the_fb.vwidth, the_fb.vheight, 0, 0,
+            the_fb.pitch, the_fb.depth, the_fb.isrgb,
+            "width", "height", "vwidth", "vheight", "swidth", "sheight",
+            "pitch", "depth", "isrgb");
         release(&mboxlock); 
         break;    
     case PROCFS_FBCTL: 

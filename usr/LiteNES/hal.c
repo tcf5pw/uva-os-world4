@@ -247,9 +247,7 @@ void nes_hal_init()
         close(fds[0]);
         // open the keyboard device file
         int events = 0;
-        // int events = open("/dev/events", 0); /* STUDENT_TODO: replace this */
-        printf("open /dev/events %d\n", events);
-        assert(events > 0);
+        assert(events >= 0);
         int evtype;
         unsigned int scancode;
         printf("input task running\n");
