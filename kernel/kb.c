@@ -184,7 +184,6 @@ void kb_intr(unsigned char mod, const unsigned char keys[6])
             key_states[c] = KEY_RELEASED;
             break;
         case KEY_JUST_PRESSED:
-            printf("key %02x pressed\n", c);
             key_states[c] = KEY_CONT_PRESSED; // for future scan
             break;
         case KEY_RELEASED: // released before && not pressed
