@@ -246,7 +246,7 @@ void nes_hal_init()
     {
         close(fds[0]);
         // open the keyboard device file
-        int events = 0;
+        int events = open("/dev/events", O_RDONLY);
         assert(events >= 0);
         int evtype;
         unsigned int scancode;
